@@ -1,0 +1,35 @@
+# Contributor: Yohann D'ANELLO <yohann.danello@gmail.com>
+# Maintainer: Yohann D'ANELLO <yohann.danello@gmail.com>
+pkgname=libsrt
+pkgver=1.4.2
+pkgrel=0
+pkgdesc="Secure Reliable Transport (SRT)"
+url="https://github.com/Haivision/srt"
+arch="all"
+license="MPL2"
+depends=" libgcc libressl libstdc++"
+makedepends="cmake git libressl-dev"
+source="$pkgname-$pkgver.tar.gz::https://github.com/Haivision/srt/archive/v$pkgver.tar.gz"
+builddir="$srcdir/srt-$pkgver/"
+
+build() {
+    cmake -B build -S . \
+        -DCMAKE_INSTALL_BINDIR:PATH='/bin' \
+        -DCMAKE_INSTALL_INCLUDEDIR:PATH='/usr/include' \
+        -DCMAKE_INSTALL_LIBDIR:PATH='/lib' \
+        -DENABLE_TESTING='True' \
+        -Wno-dev
+    make -C build
+}
+
+check() {
+    build/uriparser-test
+    build/utility-test
+}
+
+package() {
+    make -C build DESTDIR="$pkgdir" install
+    rm "$pkgdir"/bin/*-test*
+}
+
+sha512sums="4c978e3898737e566f47222a0095df1b49591d79927850cc94c838b7eaccf401faf1c5d038fa45b6fd30c85f980e7c212a79c07ed6f9008430e8a5a594a31ffe  libsrt-1.4.2.tar.gz"
